@@ -231,4 +231,41 @@ get_value(_) -> erlang:error(badarg).
 
 -ifdef(TEST).
 -include_lib("eunit/include/eunit.hrl").
+
+basic_decode_test_() ->
+    [
+        {"empty object", ?_assertEqual(#{}, decode(<<"{}">>))},
+        {"simple object", ?_assertEqual(
+            #{<<"key">> => <<"value">>},
+            decode(<<"{\"key\": \"value\"}">>)
+        )},
+        {"nested object", ?_assertEqual(
+            #{<<"key">> => #{<<"key">> => <<"value">>}},
+            decode(<<"{\"key\": {\"key\": \"value\"}}">>)
+        )},
+        {"complex object", ?_assertEqual(
+            #{<<"key">> => [
+                    #{<<"key">> => <<"value">>},
+                    #{<<"key">> => []},
+                    #{<<"key">> => 1.0},
+                    true,
+                    false,
+                    null
+                ],
+                <<"another key">> => #{}
+            },
+            decode(<<"{\"key\": [
+                    {\"key\": \"value\"},
+                    {\"key\": []},
+                    {\"key\": 1.0},
+                    true,
+                    false,
+                    null
+                ], \"another key\": {}
+            }">>)
+        )},
+        {"empty list", ?_assertEqual([], decode(<<"[]">>))},
+        {"raw value", ?_assertEqual(1.0, decode(<<"1.0">>))}
+    ].
+
 -endif.
