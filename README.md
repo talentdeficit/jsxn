@@ -17,3 +17,4 @@ that's pretty much it. enjoy
 copyright 2010-2013 alisdair sullivan
 
 [jsx]: https://github.com/talentdeficit/jsx
+[MIT]: http://www.opensource.org/licenses/mit-license.html
