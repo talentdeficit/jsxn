@@ -29,7 +29,6 @@
 -export([encoder/3, decoder/3, parser/3]).
 -export([resume/3]).
 -export([init/1, handle_event/2]).
--export([start_object/1, finish/1, insert/2, get_value/1]).
 
 -export_type([json_term/0, json_text/0, token/0]).
 -export_type([encoder/0, decoder/0, parser/0, internal_state/0]).
