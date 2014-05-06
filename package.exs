@@ -6,7 +6,8 @@ use Mix.Project
       app: :jsxn,
       version: "0.1.0",
       description: "jsx but with maps",
-      package: package
+      package: package,
+      deps: deps
     ]
   end
 
@@ -16,11 +17,15 @@ use Mix.Project
         "LICENSE",
         "package.exs",
         "README.md",
-        "rebar.config"
+        "rebar.config",
         "src"
       ],
       contributors: ["alisdair sullivan"],
       links: [{"github", "https://github.com/talentdeficit/jsxn"}]
     ]
+  end
+  
+  defp deps do
+    [{:jsx, "~> 2.0"}]
   end
 end
