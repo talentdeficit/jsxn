@@ -4,7 +4,7 @@ use Mix.Project
   def project do
     [
       app: :jsxn,
-      version: "0.1.0",
+      version: "0.2.0",
       description: "jsx but with maps",
       package: package,
       deps: deps

@@ -1,4 +1,4 @@
-# jsxn (v0.1) #
+# jsxn (v0.2) #
 
 this is just [jsx][jsx] but with maps instead of proplists
 
