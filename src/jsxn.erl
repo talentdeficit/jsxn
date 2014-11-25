@@ -163,7 +163,7 @@ handle_event(end_object, State) -> finish(State);
 handle_event(start_array, State) -> start_array(State);
 handle_event(end_array, State) -> finish(State);
 
-handle_event({key, Key}, {What, Config} = State) -> io:format("~p", [What]),insert(format_key(Key, Config), State);
+handle_event({key, Key}, {_, Config} = State) -> insert(format_key(Key, Config), State);
 
 handle_event({_, Event}, State) -> insert(Event, State).
 
