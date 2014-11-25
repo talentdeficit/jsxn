@@ -142,10 +142,9 @@ resume(Term, {decoder, State, Handler, Acc, Stack}, Config) ->
 resume(Term, {parser, State, Handler, Stack}, Config) ->
     jsx_parser:resume(Term, State, Handler, Stack, jsx_config:parse_config(Config)).
 
-
-
 -record(config, {
-    labels = binary
+    labels = binary,
+    return_maps = false
 }).
 
 -type state() :: {[any()], #config{}}.
