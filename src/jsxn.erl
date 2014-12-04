@@ -28,7 +28,6 @@
 -export([format/1, format/2, minify/1, prettify/1]).
 -export([encoder/3, decoder/3, parser/3]).
 -export([resume/3]).
--export([init/1, handle_event/2]).
 
 -export_type([json_term/0, json_text/0, token/0]).
 -export_type([encoder/0, decoder/0, parser/0, internal_state/0]).
@@ -57,7 +56,7 @@ encode(Source, Config) -> jsx:encode(Source, Config).
 -spec decode(Source::json_text(), Config::jsx_to_term:config()) -> json_term()  | {incomplete, decoder()}.
 
 decode(Source) -> decode(Source, []).
-decode(Source, Config) -> (jsx:decoder(?MODULE, Config, jsx_config:extract_config(Config)))(Source).
+decode(Source, Config) -> jsx:decode(Source, Config ++ [return_maps]).
 
 
 -spec format(Source::json_text()) -> json_text() | {incomplete, decoder()}.
@@ -142,90 +141,6 @@ resume(Term, {decoder, State, Handler, Acc, Stack}, Config) ->
 resume(Term, {parser, State, Handler, Stack}, Config) ->
     jsx_parser:resume(Term, State, Handler, Stack, jsx_config:parse_config(Config)).
 
-
-
--record(config, {
-    labels = binary
-}).
-
--type state() :: {[any()], #config{}}.
--spec init(Config::proplists:proplist()) -> state().
-
-init(Config) -> jsx_to_term:init(Config).
-
-
--spec handle_event(Event::any(), State::state()) -> state().
-
-handle_event(end_json, State) -> get_value(State);
-
-handle_event(start_object, State) -> start_object(State);
-handle_event(end_object, State) -> finish(State);
-
-handle_event(start_array, State) -> start_array(State);
-handle_event(end_array, State) -> finish(State);
-
-handle_event({key, Key}, {_, Config} = State) -> insert(format_key(Key, Config), State);
-
-handle_event({_, Event}, State) -> insert(Event, State).
-
-
-format_key(Key, Config) ->
-    case Config#config.labels of
-        binary -> Key
-        ; atom -> binary_to_atom(Key, utf8)
-        ; existing_atom -> binary_to_existing_atom(Key, utf8)
-        ; attempt_atom ->
-            try binary_to_existing_atom(Key, utf8) of
-                Result -> Result
-            catch
-                error:badarg -> Key
-            end
-    end.
-
-
-%% internal state is a stack and a config object
-%%  `{Stack, Config}`
-%% the stack is a list of in progress objects/arrays
-%%  `[Current, Parent, Grandparent,...OriginalAncestor]`
-%% an object has the representation on the stack of
-%%  `{object, #{NthKey => NthValue, NMinus1Key => NthMinus1Value,...FirstKey => FirstValue}}`
-%% of if there's a key with a yet to be matched value
-%%  `{object, Key, #{NthKey => NthValue},...}}`
-%% an array looks like
-%%  `{array, [NthValue, NthMinus1Value,...FirstValue]}`
-
-
-%% allocate a new object on top of the stack
-start_object({Stack, Config}) -> {[{object, #{}}] ++ Stack, Config}.
-
-%% allocate a new array on top of the stack
-start_array({Stack, Config}) -> {[{array, []}] ++ Stack, Config}.
-
-%% finish an object or array and insert it into the parent object if it exists or
-%%  return it if it is the root object
-finish({[{object, EmptyMap}], Config}) when is_map(EmptyMap), map_size(EmptyMap) < 1 ->
-    {#{}, Config};
-finish({[{object, EmptyMap}|Rest], Config}) when is_map(EmptyMap), map_size(EmptyMap) < 1 ->
-    insert(#{}, {Rest, Config});
-finish({[{object, Pairs}], Config}) -> {Pairs, Config};
-finish({[{object, Pairs}|Rest], Config}) -> insert(Pairs, {Rest, Config});
-finish({[{array, Values}], Config}) -> {lists:reverse(Values), Config};
-finish({[{array, Values}|Rest], Config}) -> insert(lists:reverse(Values), {Rest, Config});
-finish(_) -> erlang:error(badarg).
-
-%% insert a value when there's no parent object or array
-insert(Value, {[], Config}) -> {Value, Config};
-%% insert a key or value into an object or array, autodetects the 'right' thing
-insert(Key, {[{object, Pairs}|Rest], Config}) ->
-    {[{object, Key, Pairs}] ++ Rest, Config};
-insert(Value, {[{object, Key, Pairs}|Rest], Config}) ->
-    {[{object, maps:put(Key, Value, Pairs)}] ++ Rest, Config};
-insert(Value, {[{array, Values}|Rest], Config}) ->
-    {[{array, [Value] ++ Values}] ++ Rest, Config};
-insert(_, _) -> erlang:error(badarg).
-
-get_value({Value, _Config}) -> Value;
-get_value(_) -> erlang:error(badarg).
 
 
 -ifdef(TEST).

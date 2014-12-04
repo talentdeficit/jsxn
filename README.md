@@ -1,6 +1,8 @@
-# jsxn (v0.2.1) #
+# jsxn (v2.3.0) #
 
 this is just [jsx][jsx] but with maps instead of proplists
+
+also [jsx][jsx] returns maps now so you probably don't need to use this anymore
 
 
 ### differences from jsx ###

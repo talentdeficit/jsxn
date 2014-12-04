@@ -1,7 +1,7 @@
 {application, jsxn,
 [
     {description, "jsx but with maps for people who are into that kind of thing"},
-    {vsn, "0.2.1"},
+    {vsn, "2.3.0"},
     {modules, [
         jsxn
     ]},
