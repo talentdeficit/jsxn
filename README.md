@@ -8,7 +8,7 @@ also [jsx][jsx] returns maps now so you probably don't need to use this anymore
 ### differences from jsx ###
 
 ```erlang
-1> jsx:decode(<<"{\"library\": \"jsxn\", \"awesome?\": true}">>).
+1> jsxn:decode(<<"{\"library\": \"jsxn\", \"awesome?\": true}">>).
 #{<<"awesome?">> => true,<<"library">> => <<"jsxn">>}
 ```
 
